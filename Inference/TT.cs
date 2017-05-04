@@ -5,11 +5,10 @@ using System.Text;
 
 namespace Inference
 {
-    class Program
+    /*
+     * Truth Table return the number of statements from Root to Goal. 
+     */
+    class TT
     {
-        static void Main(string[] args)
-        {
-            
-        }
     }
 }
