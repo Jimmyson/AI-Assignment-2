@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Inference
 {
     class Program
     {
+        static string tell, ask = null;
+
         static void Main(string[] args)
         {
             if (args.Length == 3)
@@ -18,41 +21,45 @@ namespace Inference
                      * Handle following in seperate class.
                      */
                     StreamReader sr = File.OpenText(args[2]);
+                    Regex regex = new Regex("\\s+");
 
                     //LOOK FOR TELL
                     string input;
+
                     bool tellAsk = false;
                     while (!sr.EndOfStream)
                     {
                         input = sr.ReadLine();
-                        if (input.Trim(' ') == "TELL") {
+                        if(regex.Replace(input, " ") == "TELL") {
+                            tell = "";
                             tellAsk = true;
                         }
-                        else if(input.Trim(' ') == "ASK")
+                        else if(regex.Replace(input, " ") == "ASK")
                         {
+                            ask = "";
                             tellAsk = false;
                         }
-                        else
+                        else if(tellAsk)
                         {
-                            if(tellAsk)
+                            if(tellAsk && )
                             { //TRUE TO READ INFRENCE;
-                                string[] infrence = input.Split(';');
-                                foreach (string equation in infrence)
-                                {
-                                    //Look for inference '=>';
-                                    //Look for Brackjets
-                                    //Look for Logic '&';
-                                    //Look for variables;
-                                    //Save equation;
-                                }
+                                tell += sr.ReadLine();
                             } else
                             { //FALSE TO PROCESS;
-                                
+                                ask += sr.ReadLine();
                             }
                         }
                     }
-
-                    //LOOK FOR ASK
+                    if (tell != null && ask != null)
+                    {
+                        //Trim Whitespace
+                        tell = regex.Replace(tell, "");
+                        ask = regex.Replace(ask, "");
+                    } else
+                    {
+                        Console.Write("Missing TELL or ASK");
+                        return;
+                    }
                 }
                 else
                 {
@@ -63,10 +70,13 @@ namespace Inference
                 switch(args[1].ToUpper())
                 {
                     case "TT":
+                        TT truth = new TT(tell, ask);
                         break;
                     case "FC":
+                        FC forward = new FC(tell, ask);
                         break;
                     case "BC":
+                        BC backward = new BC(tell, ask);
                         break;
                     default:
                         Console.Write("Invalid Method");
