@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Inference
@@ -39,9 +37,9 @@ namespace Inference
                             ask = "";
                             tellAsk = false;
                         }
-                        else if(tellAsk)
+                        else
                         {
-                            if(tellAsk && )
+                            if(tellAsk)
                             { //TRUE TO READ INFRENCE;
                                 tell += sr.ReadLine();
                             } else
