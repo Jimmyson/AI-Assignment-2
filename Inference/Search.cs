@@ -32,13 +32,13 @@ namespace Inference
                 if (sentences[i].Contains("=>"))
                 {
                     //If true, add to clause and count the conjuctions (A&B or Z)
-                    clauses.Add(sentences[i]);
-                    count.Add(sentences[i].Split('&').Length);
+                    Clauses.Add(sentences[i]);
+                    Count.Add(sentences[i].Split('&').Length);
                 }
                 else
                 {
                     //If false, add to agenda
-                    agenda.Add(sentences[i]);
+                    Agenda.Add(sentences[i]);
                 }
             }
         }
