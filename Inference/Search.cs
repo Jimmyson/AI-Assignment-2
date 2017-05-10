@@ -4,12 +4,12 @@ namespace Inference
 {
     abstract class Search
     {
-        List<string> agenda; // Initial Variables (i.e. A;)  
+        protected List<string> Agenda { get; } // Initial Variables (i.e. A;)  
 
         // List<string> facts; 
-        List<string> clauses;  // Sentences (i.e. A => B or A & C => B)
-        List<string> entailed; // Response (taken from the agenda)
-        List<int> count; // Count the conjunctions.
+        protected List<string> Clauses { get; }  // Sentences (i.e. A => B or A & C => B)
+        protected List<string> Entailed { get; set; } // Response (taken from the agenda)
+        protected List<int> Count { get; } // Count the conjunctions.
 
         abstract public void Process();    // Implementation of the respective algorithm's output
         abstract public bool Algorithm(); // Implementation of the respective algorithm
