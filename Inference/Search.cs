@@ -11,7 +11,7 @@ namespace Inference
         protected List<string> Entailed { get; set; } // Response (taken from the agenda)
         protected List<int> Count { get; } // Count the conjunctions.
 
-        abstract public void Process();    // Implementation of the respective algorithm's output
+        abstract public void Process(string tell);    // Implementation of the respective algorithm's output
         abstract public bool Algorithm(); // Implementation of the respective algorithm
 
         public bool PremiseContains(string clause, string p)
