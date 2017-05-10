@@ -17,10 +17,22 @@ namespace Inference
 
         public bool PremiseContains(string clause, string p)
         {
-            // Check the conjuncts in the clause.
-            // If only 1, check the conjuct against p
-            // If multiple, check each of them against p
-            return false;
+            // Get the premise by spliting the clause and get the first element.
+            string premise = clause.Split(new[] { "=>" }, System.StringSplitOptions.None)[0];
+            // Get the conjucts by spliting premise
+            List<string> conjucts = premise.Split('&').ToList();
+
+            // Check the conjunctions in the clause.
+            if (conjucts.Count == 1)
+            {
+                // If only 1, check the conjuct against p
+                return premise.Equals(p);
+            }
+            else
+            {
+                // If multiple, check each of them against p
+                return conjucts.Contains(p);
+            }
         }
         public void BuildKB(string tell)
         {
