@@ -8,7 +8,9 @@ namespace Inference
     /*
      * Truth Table return the number of statements from Root to Goal. 
      */
-    class TT
+    class TT 
     {
+        public TT(string tell, string ask)
+        { }
     }
 }
