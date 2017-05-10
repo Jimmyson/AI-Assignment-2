@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;  // For ToList();
 
 namespace Inference
 {
@@ -23,9 +24,23 @@ namespace Inference
         }
         public void BuildKB(string tell)
         {
-            //Look for Inference
-            //If true, add to clause and count the conjuctions (A&B or Z)
-            //If false, add to agenda
+            // Split tell into list of strings
+            List<string> sentences = tell.Split(';').ToList();
+            for (int i=0; i<sentences.Count;i++)
+            {
+                //Look for Inference
+                if (sentences[i].Contains("=>"))
+                {
+                    //If true, add to clause and count the conjuctions (A&B or Z)
+                    clauses.Add(sentences[i]);
+                    count.Add(sentences[i].Split('&').Length);
+                }
+                else
+                {
+                    //If false, add to agenda
+                    agenda.Add(sentences[i]);
+                }
+            }
         }
     }
 }
