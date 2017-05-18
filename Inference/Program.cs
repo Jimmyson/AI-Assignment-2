@@ -70,12 +70,12 @@ namespace Inference
                     case "TT":
                         TT truth = new TT(tell, ask);
                         break;
-                    case "FC":
-                        FC forward = new FC(tell, ask);
-                        break;
-                    case "BC":
-                        BC backward = new BC(tell, ask);
-                        break;
+ //                   case "FC":
+ //                       FC forward = new FC(tell, ask);
+  //                      break;
+  //                  case "BC":
+  //                      BC backward = new BC(tell, ask);
+  //                      break;
                     default:
                         Console.Write("Invalid Method");
                         return;
