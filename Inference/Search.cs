@@ -1,22 +1,24 @@
 ﻿using System.Collections.Generic;
-
-
+using System.Linq;  // For ToList();
 
 namespace Inference
 {
     abstract class Search
     {
-        List<string> agenda;
-        List<string> facts;
-        List<string> clauses;
-        List<string> entailed;
-        List<int> count;
+        protected List<string> Agenda { get; } // Initial Variables (i.e. A;)  
 
-        public List<string> Agenda { get { return agenda; }  }
-        public List<string> Facts { get { return facts; } }
-        public List<string> Clauses { get { return clauses; } }
-        public List<string> Entailed { get { return entailed; } }
-        public List<int> Count { get { return count; } }
-        abstract public void Process();
+        // List<string> facts; 
+        protected List<string> Clauses { get; }  // Sentences (i.e. A => B or A & C => B)
+        protected List<string> Entailed { get; set; } // Response (taken from the agenda)
+        protected List<int> Count { get; } // Count the conjunctions.
+
+        abstract public void Process(string ask);    // Implementation of the respective algorithm's output
+        abstract public bool Algorithm(); // Implementation of the respective algorithm
+        abstract public void BuildKB(string tell);  // Build the Facts and Clauses 
+
+        /**
+         * Looks for a variable. Depends on Chaining Method.
+         */
+        abstract public bool Contains(string clause, string search);    //Search for the variable;
     }
 }
