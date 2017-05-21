@@ -139,13 +139,42 @@ namespace Inference
             return false;
         }
 
+        public int FindPosition(string symbol) {
+            if (Fetch(symbol)) {
+
+                for (int i = 0; i < TheSymbol.Count; i++)
+                {
+                    if (TheSymbol[i] == symbol) { return i; }
+                }
+            }
+
+            return -1;
+        }
+
         public int[][] BuildTheModels(List<string> agenda)
         {
+            // clear the deuplicated agenda
             for (int i = 0; i < agenda.Count; i++) {
                 if (TheSymbol.Contains(agenda[i])) { break; } else { TheSymbol.Add(agenda[i]); }
             }
             //set the init()
-            
+            int rows = (int)Math.Pow(2, TheSymbol.Count);
+            for (int i = 0; i < TheSymbol.Count; i++)
+            {
+                for (int j = 0; j < (Math.Pow(2, TheSymbol.Count)); j++)
+                {
+
+                    if (j < Math.Pow(2, TheSymbol.Count - 1))
+                    {
+                        theModels[j][i] = 0;
+                    }
+                    else
+                    {
+                        theModels[j][i] = 1;
+                    }
+                }
+            }
+            return theModels;
         }
        
 
