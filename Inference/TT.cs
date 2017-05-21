@@ -11,6 +11,10 @@ namespace Inference
      */
     class TT : Search
     {
+        private int[][] theModels;
+        private List<String> TheSymbol;
+
+
         public TT(string tell, string ask)
         {
             BuildKB(tell);
@@ -82,7 +86,8 @@ namespace Inference
                 {
                     //If true, add to clause and count the conjuctions (A&B or Z)
                     Clauses.Add(sentences[i]);
-                    Count.Add(sentences[i].Split('&').Length);
+                    Count.Add(sentences[i].Split('&').Length); 
+
                 }
                 else
                 {
@@ -90,6 +95,18 @@ namespace Inference
                     Agenda.Add(sentences[i]);
                 }
             }
+
+            //add every symbol into the agenda including the deuplicated
+            //the deuplication will be remove in the next step
+            for (int i = 0; i < Clauses.Count; i++) {
+                Clauses[0].Replace("=>", " ");
+                Clauses[0].Replace("&", " ");
+                string[] temp = Clauses[0].Split(' ');
+                for (int j = 0; j < temp.Length; j++) { Agenda.Add(temp[j]); }
+            }
+
+
+
         }
 
         public override bool Contains(string clause, string p)
@@ -113,12 +130,24 @@ namespace Inference
         }
 
 
+        public bool Fetch(string symbol) {
 
+            for (int i = 0; i < TheSymbol.Count; i++) {
+                if (TheSymbol[i] == symbol) { return true; }
+            }
 
-        public Boolean TT-Check-All(LogicalExpression  KB, LogicalExpression aphla, List symbols, Map model) {
-            return 
-
+            return false;
         }
+
+        public int[][] BuildTheModels(List<string> agenda)
+        {
+            for (int i = 0; i < agenda.Count; i++) {
+                if (TheSymbol.Contains(agenda[i])) { break; } else { TheSymbol.Add(agenda[i]); }
+            }
+            //set the init()
+            
+        }
+       
 
     }
 }
