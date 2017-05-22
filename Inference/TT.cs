@@ -44,7 +44,7 @@ namespace Inference
 
         public override bool Algorithm()
         {
-            
+            if (Agenda.Count > 0) { 
                 // add the True and False into the whole TT map
                 int rows = (int)Math.Pow(2, AllSymbolAndStatment.Count);
                 for (int i = TheNumberOfSymbol; i < AllSymbolAndStatment.Count; i++)    // this step is to add the T/F into the position for statement 
@@ -62,7 +62,22 @@ namespace Inference
                         }
                     }
                 }
+                // add the True or False for the KB result 
+                for (int j = 0; j < (Math.Pow(2, AllSymbolAndStatment.Count)); j++) // this step is pass the line number for fetch and find position
+                {
 
+                    if (FindKB(j))
+                    {
+                        theModels[j][AllSymbolAndStatment.Count] = 1;
+                    }
+                    else
+                    {
+                        theModels[j][AllSymbolAndStatment.Count] = 0;
+                    }
+                }
+
+                return true;
+            }
 
             
             // Cannot be entailed
@@ -129,7 +144,7 @@ namespace Inference
         public bool CheckStatement(string statement,int thelinenumber)
         {
 
-
+            // currently can handle a&b=>c ; a=>c;
             if (!statement.Contains("&"))
             {
                 string premise = Regex.Split(statement, "=>")[0];
@@ -211,6 +226,20 @@ namespace Inference
                 if (AllSymbolAndStatment.Contains(Clauses[i])) { break; } else { AllSymbolAndStatment.Add(Clauses[i]); }
             }
             Algorithm();
+        }
+
+        // check if all the stetement are true, if it is then return true
+        public bool FindKB(int thelinenumber)
+        {
+            int TheSumOfStatement =0;
+            for (int i = TheNumberOfSymbol; i < AllSymbolAndStatment.Count; i++) {
+                if (theModels[thelinenumber][i] == 1) { TheSumOfStatement += 1; } // if all the statement are true, the Sum of Statement should be the same as the number of the statement
+                    
+            }
+            if (TheSumOfStatement == (AllSymbolAndStatment.Count - TheNumberOfSymbol))
+            { return true; }
+            else { return false; }
+
         }
     }
 }
