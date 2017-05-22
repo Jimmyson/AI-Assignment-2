@@ -12,8 +12,8 @@ namespace Inference
     class TT : Search
     {
         private int[][] theModels;
-        private List<String> TheSymbol;
-
+        private List<String> AllSymbolAndStatment;
+        private int TheNumberOfSymbol;
 
         public TT(string tell, string ask)
         {
@@ -50,26 +50,25 @@ namespace Inference
                 string p = Agenda[0];
                 Entailed.Add(p);
                 Agenda.RemoveAt(0);
-
-                for (int i = 0; i < Clauses.Count; i++)
+                // add the True and False into the whole TT map
+                int rows = (int)Math.Pow(2, AllSymbolAndStatment.Count);
+                for (int i = TheNumberOfSymbol; i < AllSymbolAndStatment.Count; i++)    // this step is to add the T/F into the position for statement 
                 {
-                    // Check if 
-                    if (Contains(Clauses[i], p))
+                    for (int j = 0; j < (Math.Pow(2, AllSymbolAndStatment.Count)); j++) // this step is pass the line number for fetch and find position
                     {
-                        //Decrement Count at i and checks if zero
-                        if ((--Count[i]) == 0)
+
+                        if (CheckStatement(AllSymbolAndStatment[i],j))
                         {
-                            // Get the Conclusion
-                            string head = Regex.Split(Clauses[i], "=>")[1];
-                            // Check if reach ask
-                            if (head.Equals(ask))
-                                return true;
-                            Agenda.Add(head);
+                            theModels[j][i] = 1;
                         }
-
+                        else
+                        {
+                            theModels[j][i] = 0;
+                        }
                     }
-
                 }
+
+
             }
             // Cannot be entailed
             return false;
@@ -105,6 +104,8 @@ namespace Inference
                 for (int j = 0; j < temp.Length; j++) { Agenda.Add(temp[j]); }
             }
 
+            BuildTheModels(Agenda);
+            BuildWholeTT(Clauses);
 
 
         }
@@ -129,11 +130,40 @@ namespace Inference
             }
         }
 
+        // key section to add the result of statement
+        public bool CheckStatement(string statement,int thelinenumber)
+        {
+
+
+            if (!statement.Contains("&"))
+            {
+                string[] temp = statement.Split('&');
+                if (FindPosition(temp[0]) == 0 && FindPosition(temp[1]) == 1) { return false; }
+                else { return true; }
+            }
+            else {
+                string premise = Regex.Split(statement, "=>")[0];
+                string aftermise = Regex.Split(statement, "=>")[1];
+                string[] temp = premise.Split('&');
+                
+                if (FindPosition(temp[0]) == 0 && FindPosition(temp[1]) == 1)
+                {
+                   
+                    if (FindPosition(aftermise) == 1) { return false; } else { return true; }
+                }
+                else { return true; }
+
+            }
+
+
+            
+
+        }
 
         public bool Fetch(string symbol) {
 
-            for (int i = 0; i < TheSymbol.Count; i++) {
-                if (TheSymbol[i] == symbol) { return true; }
+            for (int i = 0; i < AllSymbolAndStatment.Count; i++) {
+                if (AllSymbolAndStatment[i] == symbol) { return true; }
             }
 
             return false;
@@ -142,29 +172,30 @@ namespace Inference
         public int FindPosition(string symbol) {
             if (Fetch(symbol)) {
 
-                for (int i = 0; i < TheSymbol.Count; i++)
+                for (int i = 0; i < AllSymbolAndStatment.Count; i++)
                 {
-                    if (TheSymbol[i] == symbol) { return i; }
+                    if (AllSymbolAndStatment[i] == symbol) { return i; }
                 }
             }
 
             return -1;
         }
 
-        public int[][] BuildTheModels(List<string> agenda)
+        public void BuildTheModels(List<string> agenda)
         {
             // clear the deuplicated agenda
             for (int i = 0; i < agenda.Count; i++) {
-                if (TheSymbol.Contains(agenda[i])) { break; } else { TheSymbol.Add(agenda[i]); }
+                if (AllSymbolAndStatment.Contains(agenda[i])) { break; } else { AllSymbolAndStatment.Add(agenda[i]); }
             }
+            TheNumberOfSymbol = AllSymbolAndStatment.Count;
             //set the init()
-            int rows = (int)Math.Pow(2, TheSymbol.Count);
-            for (int i = 0; i < TheSymbol.Count; i++)
+            int rows = (int)Math.Pow(2, AllSymbolAndStatment.Count);
+            for (int i = 0; i < AllSymbolAndStatment.Count; i++)
             {
-                for (int j = 0; j < (Math.Pow(2, TheSymbol.Count)); j++)
+                for (int j = 0; j < (Math.Pow(2, AllSymbolAndStatment.Count)); j++)
                 {
 
-                    if (j < Math.Pow(2, TheSymbol.Count - 1))
+                    if (j < Math.Pow(2, AllSymbolAndStatment.Count - 1))
                     {
                         theModels[j][i] = 0;
                     }
@@ -174,9 +205,16 @@ namespace Inference
                     }
                 }
             }
-            return theModels;
+            
         }
-       
 
+        public void BuildWholeTT(List<string> clauses) {
+            // add all the statement into the symbol
+            for (int i = 0; i < Clauses.Count; i++)
+            {
+                if (AllSymbolAndStatment.Contains(Clauses[i])) { break; } else { AllSymbolAndStatment.Add(Clauses[i]); }
+            }
+            Algorithm();
+        }
     }
 }
