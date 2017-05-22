@@ -132,8 +132,9 @@ namespace Inference
 
             if (!statement.Contains("&"))
             {
-                string[] temp = statement.Split('&');
-                if (FindPosition(temp[0]) == 0 && FindPosition(temp[1]) == 1) { return false; }
+                string premise = Regex.Split(statement, "=>")[0];
+                string aftermise = Regex.Split(statement, "=>")[1];
+                if (FindPosition(premise) == 0 && FindPosition(aftermise) == 1) { return false; }
                 else { return true; }
             }
             else {
