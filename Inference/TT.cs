@@ -44,12 +44,7 @@ namespace Inference
 
         public override bool Algorithm()
         {
-            while (Agenda.Count != 0)
-            {
-                // Pop the first element at agenda and temporarily store it at p
-                string p = Agenda[0];
-                Entailed.Add(p);
-                Agenda.RemoveAt(0);
+            
                 // add the True and False into the whole TT map
                 int rows = (int)Math.Pow(2, AllSymbolAndStatment.Count);
                 for (int i = TheNumberOfSymbol; i < AllSymbolAndStatment.Count; i++)    // this step is to add the T/F into the position for statement 
@@ -69,7 +64,7 @@ namespace Inference
                 }
 
 
-            }
+            
             // Cannot be entailed
             return false;
         }
