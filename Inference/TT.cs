@@ -25,19 +25,30 @@ namespace Inference
 
         public override void Process(string ask)
         {
-            string output = "";
-            if (Algorithm())
+            
+            if (Fetch(ask))
             {
-                output = "YES: ";
-                for (int i = 0; i < Entailed.Count; i++)
+                int count = 0;
+               
+                for (int i = 0; i < (Math.Pow(2, AllSymbolAndStatment.Count)); i++)
                 {
-                    output += Entailed[i] + ", ";
+                    if (theModels[i][FindPosition(ask)] == 1 && theModels[i][AllSymbolAndStatment.Count] == 1) // find if the KB is 1 and the ask is 1 in the same model
+                    {
+                        count += 1;
+                    }
                 }
-                output += ask;
+                if (count > 0)
+                {
+                    Console.WriteLine("YES: ", count);
+                }
+                else {
+                    Console.WriteLine("NO");
+                }
+                
             }
             else
             {
-                output = "NO";
+                Console.WriteLine("NO");
             }
             
         }
@@ -225,7 +236,9 @@ namespace Inference
             {
                 if (AllSymbolAndStatment.Contains(Clauses[i])) { break; } else { AllSymbolAndStatment.Add(Clauses[i]); }
             }
-            Algorithm();
+            if (Algorithm()) {
+                Console.WriteLine("The whole TT map is build");
+                    }
         }
 
         // check if all the stetement are true, if it is then return true
