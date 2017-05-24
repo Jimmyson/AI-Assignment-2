@@ -11,14 +11,14 @@ namespace Inference
 
         static void Main(string[] args)
         {
-            if (args.Length == 3)
+            if (args.Length == 2)
             {
-                if(File.Exists(args[2]))
+                if(File.Exists(args[1]))
                 {
                     /*
                      * Handle following in seperate class.
                      */
-                    StreamReader sr = File.OpenText(args[2]);
+                    StreamReader sr = File.OpenText(args[1]);
                     Regex regex = new Regex("\\s+");
 
                     //LOOK FOR TELL
@@ -65,7 +65,7 @@ namespace Inference
                     return;
                 }
 
-                switch(args[1].ToUpper())
+                switch(args[0].ToUpper())
                 {
                     case "TT":
                         TT truth = new TT(tell, ask);
