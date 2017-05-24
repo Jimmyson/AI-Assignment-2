@@ -5,13 +5,6 @@ namespace Inference
 {
     abstract class Search
     {
-        /*protected List<string> Agenda = new List<string>();
-
-        protected List<string> Clauses = new List<string>();
-        protected List<string> Entailed = new List<string>();
-        protected List<int> Count = new List<int>();*/
-
-        
         protected List<string> agenda = new List<string>();
         protected List<string> clauses = new List<string>();
         protected List<string> entailed = new List<string>();

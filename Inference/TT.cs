@@ -14,10 +14,13 @@ namespace Inference
         //1 = True
         //0 = False
 
+        //AGENDA contains all unique Variables (a, b, p1, etc.)
+
         private string Ask;
         private bool[,] theModels;
         private List<String> AllSymbolAndStatment = new List<string>();
-        private int TheNumberOfSymbol;
+        private List<String> UniqueStatements = new List<string>();
+        //private int TheNumberOfSymbol;
 
         public TT(string tell, string ask)
         {
@@ -53,7 +56,7 @@ namespace Inference
             if (Agenda.Count > 0) { 
                 // add the True and False into the whole TT map
                 int rows = (int)Math.Pow(2, AllSymbolAndStatment.Count);
-                for (int i = TheNumberOfSymbol; i < AllSymbolAndStatment.Count; i++)
+                for (int i = Agenda.Count; i < AllSymbolAndStatment.Count; i++)
                 // this step is to add the T/F into the position for statement 
                 {
                     for (int j = 0; j < (Math.Pow(2, AllSymbolAndStatment.Count)); j++)
@@ -110,7 +113,7 @@ namespace Inference
                     Clauses.Add(sentences[i]);
                     Count.Add(sentences[i].Split('&').Length); 
                 }
-                else if(!sentences[i].Trim().Equals(""))  //If false, add to agenda
+                else if(!sentences[i].Trim().Equals(""))  //If false and not empty, add to agenda
                     Agenda.Add(sentences[i]);
             }
 
@@ -122,12 +125,12 @@ namespace Inference
                 string[] temp = statement.Split(' ');
                 for (int j = 0; j < temp.Length; j++)
                 {
-                    if (!Agenda.Contains(temp[j]))
+                    if (!Agenda.Contains(temp[j])) //Check for Duplicates
                         Agenda.Add(temp[j]);
                 }
             }
 
-            BuildTheModels(Agenda);
+            BuildTheModels();
             BuildWholeTT(Clauses);
         }
 
@@ -201,28 +204,30 @@ namespace Inference
             return -1;
         }
 
-        public void BuildTheModels(List<string> agenda)
+        public void BuildTheModels()
         {
             // clear the deuplicated agenda
-            for (int i = 0; i < agenda.Count; i++)
+            /*for (int i = 0; i < agenda.Count; i++)
             {
                 if (AllSymbolAndStatment.Contains(agenda[i]))
                     break;
                 else
                     AllSymbolAndStatment.Add(agenda[i]);
-            }
+            }*/
 
-            TheNumberOfSymbol = AllSymbolAndStatment.Count;
-            //set the init()
-            int rows = (int)Math.Pow(2, TheNumberOfSymbol);
+            //TheNumberOfSymbol = AllSymbolAndStatment.Count;
+            
+            //Determine rows from variation in ALL unique variables.
+            int rows = (int)Math.Pow(2, Agenda.Count);
 
-            this.theModels = new bool[rows,TheNumberOfSymbol];
+            //Build the array.
+            this.theModels = new bool[rows, Agenda.Count + UniqueStatements.Count];
 
-            for (int i = 0; i < TheNumberOfSymbol; i++)
+            for (int i = 0; i < Agenda.Count; i++)
             {
-                for (int j = 0; j < (Math.Pow(2, TheNumberOfSymbol)); j++)
+                for (int j = 0; j < rows; j++)
                 {
-                    theModels[j,i] = (j < Math.Pow(2, TheNumberOfSymbol - 1)) ? false : true;
+                    theModels[j,i] = (j < rows) ? false : true;
                     /*if (j < Math.Pow(2, AllSymbolAndStatment.Count - 1))
                     {
                         //FALSE
@@ -239,7 +244,10 @@ namespace Inference
         }
 
         public void BuildWholeTT(List<string> clauses) {
+            //@TODO: Seperate the Clauses. =>,&
             // add all the statement into the symbol
+
+            //UniqueStatements;
             for (int i = 0; i < Clauses.Count; i++)
             {
                 if (AllSymbolAndStatment.Contains(Clauses[i]))
@@ -256,12 +264,12 @@ namespace Inference
         public bool FindKB(int thelinenumber)
         {
             int TheSumOfStatement = 0;
-            for (int i = TheNumberOfSymbol; i < AllSymbolAndStatment.Count; i++)
+            for (int i = Agenda.Count; i < AllSymbolAndStatment.Count; i++)
             {
                 if (theModels[thelinenumber,i] == true)
-                    TheSumOfStatement++; // if all the statement are true, the Sum of Statement should be the same as the number of the statement
+                    TheSumOfStatement += 1; // if all the statement are true, the Sum of Statement should be the same as the number of the statement
             }
-            return (TheSumOfStatement == (AllSymbolAndStatment.Count - TheNumberOfSymbol));
+            return (TheSumOfStatement == (AllSymbolAndStatment.Count - Agenda.Count));
             /*if (TheSumOfStatement == (AllSymbolAndStatment.Count - TheNumberOfSymbol))
             { return true; }
             else { return false; }*/
