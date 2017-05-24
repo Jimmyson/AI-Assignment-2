@@ -50,7 +50,7 @@ namespace Inference
                         {
                             // -> that contains the symbol as its conclusion
 
-                            List<String> temp = getPremises(Clauses[i]);
+                            List<String> temp = GetPremises(Clauses[i]);
                             for (int j = 0; j < temp.Count(); j++)
                             {
                                 // add the symbols to a temp array
@@ -126,7 +126,7 @@ namespace Inference
         }
 
         // -> methid that returns the conjuncts contained in a clause
-        public List<String> getPremises(string clause)
+        public List<String> GetPremises(string clause)
         {
             // -> get the premise
             string premise = Regex.Split(clause,"=>")[0];

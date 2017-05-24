@@ -12,14 +12,17 @@ namespace Inference
      */
     class FC : Search
     {
+        private string Ask;
+
         public FC(string tell, string ask)
         {
+            this.Ask = ask;
             Process();
             Algorithm();
             BuildKB(tell);
         }
 
-        public override string Process()
+        public override void Process()
         {
             string output = "";
             if(Algorithm())
@@ -29,13 +32,14 @@ namespace Inference
                 {
                     output += Entailed[i] + ", ";
                 }
-                output += ask;
+                output += Ask;
             }
             else
             {
                 output = "NO";
             }
-            return output;
+            Console.WriteLine(output);
+            //return output;
         }
 
         public override bool Algorithm()
@@ -53,12 +57,12 @@ namespace Inference
                     if (Contains(Clauses[i],p))
                     {
                         //Decrement Count at i and checks if zero
-                        if ((--Count[i])==0)
+                        if ((--Count[i]) == 0)
                         {
                             // Get the Conclusion
                             string head = Regex.Split(Clauses[i], "=>")[1];
                             // Check if reach ask
-                            if (head.Equals(ask))
+                            if (head.Equals(Ask))
                                 return true;
                             Agenda.Add(head);
                         }
