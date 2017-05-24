@@ -13,20 +13,21 @@ namespace Inference
     {
         //1 = True
         //0 = False
-
+        private string Ask;
         private bool[][] theModels;
         private List<String> AllSymbolAndStatment;
         private int TheNumberOfSymbol;
 
         public TT(string tell, string ask)
         {
+            this.Ask = ask;
             BuildKB(tell);
-            Process(ask);   
+            Process();   
         }
 
-        public override void Process(string ask)
+        public override void Process()
         {
-            if (Fetch(ask))
+            if (Fetch(Ask))
             {
                 int count = 0;
                
