@@ -12,35 +12,39 @@ namespace Inference
      */
     class FC : Search
     {
+        private string Ask;
+
         public FC(string tell, string ask)
         {
+            this.Ask = ask;
             Process();
             Algorithm();
             BuildKB(tell);
         }
 
-        public override string Process()
+        public override void Process()
         {
             string output = "";
-            if(Algorithm())
+            if (Algorithm())
             {
                 output = "YES: ";
                 for (int i = 0; i < Entailed.Count; i++)
                 {
                     output += Entailed[i] + ", ";
                 }
-                output += ask;
+                output += Ask;
             }
             else
             {
                 output = "NO";
             }
-            return output;
+            Console.WriteLine(output);
+            //return output;
         }
 
         public override bool Algorithm()
         {
-            while(Agenda.Count != 0)
+            while (Agenda.Count != 0)
             {
                 // Pop the first element at agenda and temporarily store it at p
                 string p = Agenda[0];
@@ -50,15 +54,15 @@ namespace Inference
                 for (int i = 0; i < Clauses.Count; i++)
                 {
                     // Check if 
-                    if (Contains(Clauses[i],p))
+                    if (Contains(Clauses[i], p))
                     {
                         //Decrement Count at i and checks if zero
-                        if ((--Count[i])==0)
+                        if ((--Count[i]) == 0)
                         {
                             // Get the Conclusion
                             string head = Regex.Split(Clauses[i], "=>")[1];
                             // Check if reach ask
-                            if (head.Equals(ask))
+                            if (head.Equals(Ask))
                                 return true;
                             Agenda.Add(head);
                         }
