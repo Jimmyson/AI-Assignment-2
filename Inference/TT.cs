@@ -13,9 +13,10 @@ namespace Inference
     {
         //1 = True
         //0 = False
+
         private string Ask;
         private bool[][] theModels;
-        private List<String> AllSymbolAndStatment;
+        private List<String> AllSymbolAndStatment = new List<string>();
         private int TheNumberOfSymbol;
 
         public TT(string tell, string ask)

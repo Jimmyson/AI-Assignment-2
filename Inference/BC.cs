@@ -12,7 +12,8 @@ namespace Inference
      */
     class BC : Search
     {
-        protected List<string> Facts;
+        private List<string> facts = new List<string>();
+        private List<string> Facts { get => facts; set => facts = value; }
 
         public BC(string tell, string ask)
         {
