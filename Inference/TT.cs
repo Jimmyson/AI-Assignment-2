@@ -275,5 +275,47 @@ namespace Inference
             else { return false; }*/
 
         }
+
+        public bool ProcessSentence(int row, string sentence)
+        {
+            string[] segments;
+            if (sentence.Contains("=>"))
+            {
+                segments = Regex.Split(sentence, "=>");
+                bool[] logic = new bool[segments.Count()];
+                for (int i = 0; i < segments.Count(); i++)
+                {
+                    logic[i] = ProcessSentence(row, segments[i]);
+                }
+                return Inference(logic[0], logic[1]);
+            }
+            else if (sentence.Contains("&"))
+            {
+                segments = Regex.Split(sentence, "&");
+                bool[] logic = new bool[segments.Count()];
+                for (int i = 0; i < segments.Count(); i++)
+                {
+                    logic[i] = ProcessSentence(row, segments[i]);
+                }
+                return And(logic[0], logic[1]);
+            }
+            else
+                return theModels[row, Agenda.IndexOf(sentence)];
+        }
+
+        public bool Inference(bool p, bool q)
+        {
+            return (!p || q);
+        }
+
+        public bool And(bool p, bool q)
+        {
+            return (p && q);
+        }
+
+        public bool Not(bool p)
+        {
+            return !p;
+        }
     }
 }
