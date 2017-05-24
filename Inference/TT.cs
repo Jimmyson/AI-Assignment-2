@@ -33,7 +33,7 @@ namespace Inference
                
                 for (int i = 0; i < (Math.Pow(2, AllSymbolAndStatment.Count)); i++)
                 {
-                    if (theModels[i][FindPosition(ask)] && theModels[i][AllSymbolAndStatment.Count])
+                    if (theModels[i][FindPosition(Ask)] && theModels[i][AllSymbolAndStatment.Count])
                     // find if the KB is TRUE and the ask is TRUE in the same model
                         count += 1;
                 }
