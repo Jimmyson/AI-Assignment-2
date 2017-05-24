@@ -41,9 +41,11 @@
   <ItemGroup>
     <Compile Include="BC.cs" />
     <Compile Include="FC.cs" />
+    <Compile Include="LogicalExpression.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Search.cs" />
+    <Compile Include="TT.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="test1.txt" />

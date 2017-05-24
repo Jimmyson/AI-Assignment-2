@@ -25,7 +25,7 @@ namespace Inference
         public override void Process()
         {
             string output = "";
-            if(Algorithm())
+            if (Algorithm())
             {
                 output = "YES: ";
                 for (int i = 0; i < Entailed.Count; i++)
@@ -44,7 +44,7 @@ namespace Inference
 
         public override bool Algorithm()
         {
-            while(Agenda.Count != 0)
+            while (Agenda.Count != 0)
             {
                 // Pop the first element at agenda and temporarily store it at p
                 string p = Agenda[0];
@@ -54,7 +54,7 @@ namespace Inference
                 for (int i = 0; i < Clauses.Count; i++)
                 {
                     // Check if 
-                    if (Contains(Clauses[i],p))
+                    if (Contains(Clauses[i], p))
                     {
                         //Decrement Count at i and checks if zero
                         if ((--Count[i]) == 0)

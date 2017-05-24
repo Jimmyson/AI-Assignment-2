@@ -113,11 +113,12 @@ namespace Inference
             if (Algorithm())
             {
                 output += "YES: ";
-                foreach(String Entail in Entailed)
+                foreach (String Entail in Entailed)
                 {
                     output += (Entailed.Count < 2) ? Entail : Entail + ", ";
                 }
-            } else
+            }
+            else
             {
                 output += "NO";
             }
@@ -129,9 +130,9 @@ namespace Inference
         public List<String> GetPremises(string clause)
         {
             // -> get the premise
-            string premise = Regex.Split(clause,"=>")[0];
+            string premise = Regex.Split(clause, "=>")[0];
             List<String> temp = new List<String>();
-            String[] conjuncts = Regex.Split(premise,"&");
+            String[] conjuncts = Regex.Split(premise, "&");
             // -> for each conjunct
             for (int i = 0; i < conjuncts.Length; i++)
             {
