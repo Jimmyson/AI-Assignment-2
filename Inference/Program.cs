@@ -41,10 +41,10 @@ namespace Inference
                         {
                             if(tellAsk)
                             { //TRUE TO READ INFRENCE;
-                                tell += sr.ReadLine();
+                                tell += input;
                             } else
                             { //FALSE TO PROCESS;
-                                ask += sr.ReadLine();
+                                ask += input;
                             }
                         }
                     }
