@@ -15,7 +15,7 @@ namespace Inference
         //0 = False
 
         private string Ask;
-        private bool[][] theModels;
+        private bool[,] theModels;
         private List<String> AllSymbolAndStatment = new List<string>();
         private int TheNumberOfSymbol;
 
@@ -34,7 +34,7 @@ namespace Inference
                
                 for (int i = 0; i < (Math.Pow(2, AllSymbolAndStatment.Count)); i++)
                 {
-                    if (theModels[i][FindPosition(Ask)] && theModels[i][AllSymbolAndStatment.Count])
+                    if (theModels[i,FindPosition(Ask)] && theModels[i,AllSymbolAndStatment.Count])
                     // find if the KB is TRUE and the ask is TRUE in the same model
                         count += 1;
                 }
@@ -59,7 +59,7 @@ namespace Inference
                     for (int j = 0; j < (Math.Pow(2, AllSymbolAndStatment.Count)); j++)
                     // this step is pass the line number for fetch and find position
                     {
-                        theModels[j][i] = CheckStatement(AllSymbolAndStatment[i], j);
+                        theModels[j,i] = CheckStatement(AllSymbolAndStatment[i], j);
                         /*
                         if (CheckStatement(AllSymbolAndStatment[i], j)) {
                             //TRUE
@@ -77,7 +77,7 @@ namespace Inference
                 for (int j = 0; j < (Math.Pow(2, AllSymbolAndStatment.Count)); j++) 
                 // this step is pass the line number for fetch and find position
                 {
-                    theModels[j][AllSymbolAndStatment.Count] = FindKB(j);
+                    theModels[j,AllSymbolAndStatment.Count] = FindKB(j);
                     /*if (FindKB(j))
                     {
                         //TRUE
@@ -110,19 +110,20 @@ namespace Inference
                     Clauses.Add(sentences[i]);
                     Count.Add(sentences[i].Split('&').Length); 
                 }
-                else  //If false, add to agenda
+                else if(!sentences[i].Trim().Equals(""))  //If false, add to agenda
                     Agenda.Add(sentences[i]);
             }
 
             //add every symbol into the agenda including the deuplicated
             //the deuplication will be remove in the next step
             for (int i = 0; i < Clauses.Count; i++) {
-                Clauses[0].Replace("=>", " ");
-                Clauses[0].Replace("&", " ");
-                string[] temp = Clauses[0].Split(' ');
+                string statement = Clauses[i];
+                statement = statement.Replace("=>", " ").Replace("&", " ");
+                string[] temp = statement.Split(' ');
                 for (int j = 0; j < temp.Length; j++)
                 {
-                    Agenda.Add(temp[j]);
+                    if (!Agenda.Contains(temp[j]))
+                        Agenda.Add(temp[j]);
                 }
             }
 
@@ -213,12 +214,15 @@ namespace Inference
 
             TheNumberOfSymbol = AllSymbolAndStatment.Count;
             //set the init()
-            int rows = (int)Math.Pow(2, AllSymbolAndStatment.Count);
-            for (int i = 0; i < AllSymbolAndStatment.Count; i++)
+            int rows = (int)Math.Pow(2, TheNumberOfSymbol);
+
+            this.theModels = new bool[rows,TheNumberOfSymbol];
+
+            for (int i = 0; i < TheNumberOfSymbol; i++)
             {
-                for (int j = 0; j < (Math.Pow(2, AllSymbolAndStatment.Count)); j++)
+                for (int j = 0; j < (Math.Pow(2, TheNumberOfSymbol)); j++)
                 {
-                    theModels[j][i] = (j < Math.Pow(2, AllSymbolAndStatment.Count - 1)) ? false : true;
+                    theModels[j,i] = (j < Math.Pow(2, TheNumberOfSymbol - 1)) ? false : true;
                     /*if (j < Math.Pow(2, AllSymbolAndStatment.Count - 1))
                     {
                         //FALSE
@@ -254,8 +258,8 @@ namespace Inference
             int TheSumOfStatement = 0;
             for (int i = TheNumberOfSymbol; i < AllSymbolAndStatment.Count; i++)
             {
-                if (theModels[thelinenumber][i] == true)
-                    TheSumOfStatement += 1; // if all the statement are true, the Sum of Statement should be the same as the number of the statement
+                if (theModels[thelinenumber,i] == true)
+                    TheSumOfStatement++; // if all the statement are true, the Sum of Statement should be the same as the number of the statement
             }
             return (TheSumOfStatement == (AllSymbolAndStatment.Count - TheNumberOfSymbol));
             /*if (TheSumOfStatement == (AllSymbolAndStatment.Count - TheNumberOfSymbol))
