@@ -17,11 +17,11 @@ namespace Inference
         public FC(string tell, string ask)
         {
             this.Ask = ask;
-            Process();
-            Algorithm();
             BuildKB(tell);
+            Process();
         }
 
+        // Write result of Front-Chain algorithm
         public override void Process()
         {
             string output = "";
@@ -39,9 +39,9 @@ namespace Inference
                 output = "NO";
             }
             Console.WriteLine(output);
-            //return output;
         }
 
+        // Start the Front-Chain process
         public override bool Algorithm()
         {
             while (Agenda.Count != 0)
@@ -53,7 +53,6 @@ namespace Inference
 
                 for (int i = 0; i < Clauses.Count; i++)
                 {
-                    // Check if 
                     if (Contains(Clauses[i], p))
                     {
                         //Decrement Count at i and checks if zero
@@ -75,10 +74,14 @@ namespace Inference
             return false;
         }
 
+        // Build Knowledge Base
         public override void BuildKB(string tell)
         {
             // Split tell into list of strings
             List<string> sentences = tell.Split(';').ToList();
+
+            // Remove the last element which is empty due to split.
+            sentences.RemoveAt(sentences.Count - 1);
             for (int i = 0; i < sentences.Count; i++)
             {
                 //Look for Inference
@@ -96,6 +99,7 @@ namespace Inference
             }
         }
 
+        // Check if p appears in the premise of given clause
         public override bool Contains(string clause, string p)
         {
             // Get the premise by spliting the clause and get the first element.
