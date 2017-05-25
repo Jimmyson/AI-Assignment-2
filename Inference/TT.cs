@@ -34,6 +34,7 @@ namespace Inference
          */
         public override void Process()
         {
+            ProcessSentence(0, "a&c=>p1");
             if (Fetch(Ask))
             {
                 int count = 0;
@@ -220,9 +221,13 @@ namespace Inference
             string[] segments;
 
             //FIX IF LOGIC. LOOK FOR END LOGIC SYMBOL
-            if (sentence.Contains("=>"))
+            int pos;
+            if ((pos = sentence.LastIndexOf("=>")) > 0)
             {
-                segments = Regex.Split(sentence, "=>");
+                segments = new string[2];
+                segments[0] = sentence.Substring(0, pos);
+                segments[1] = sentence.Substring(pos + 2, sentence.Length-(pos+2));
+
                 bool[] logic = new bool[segments.Count()];
                 for (int i = 0; i < segments.Count(); i++)
                 {
@@ -230,9 +235,12 @@ namespace Inference
                 }
                 return Inference(logic[0], logic[1]);
             }
-            else if (sentence.Contains("&"))
+            else if ((pos = sentence.LastIndexOf("&")) > 0)
             {
-                segments = Regex.Split(sentence, "&");
+                segments = new string[2];
+                segments[0] = sentence.Substring(0, pos);
+                segments[1] = sentence.Substring(pos+1, sentence.Length-(pos+1));
+
                 bool[] logic = new bool[segments.Count()];
                 for (int i = 0; i < segments.Count(); i++)
                 {
