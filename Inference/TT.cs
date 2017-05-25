@@ -26,6 +26,7 @@ namespace Inference
         {
             this.Ask = ask;
             BuildKB(tell);
+            //PrintModel();
             Process();   
         }
 
@@ -192,7 +193,7 @@ namespace Inference
 
             for (int row = 0; row < rows; row++)
             {
-                for (int agd = 2; agd >= 0; agd--)
+                for (int agd = 0; agd < Agenda.Count; agd++)
                 {
                     int mask = (int)Math.Pow(2, agd);
                     Model[row,agd] = (row & mask) == mask;
@@ -265,6 +266,27 @@ namespace Inference
         public bool Not(bool p)
         {
             return !p;
+        }
+
+        public void PrintModel()
+        {
+            for (int j = 0; j < (int) Math.Pow(2, Agenda.Count); j++)
+            {
+                Console.Write(j + ": ");
+                for (int i = 0; i < Agenda.Count; i++)
+                {
+                    if (Model[j,i])
+                    {
+
+                        Console.Write("1 ");
+                    } else
+                    {
+
+                        Console.Write("0 ");
+                    }
+                }
+                Console.WriteLine();
+            }
         }
     }
 }
