@@ -19,12 +19,10 @@ namespace Inference
         private string Ask;
         private bool[,] Model;
         private List<String> AllSymbolAndStatment = new List<string>();
-        //private List<String> UniqueStatements = new List<string>();
-        //private int TheNumberOfSymbol;
 
         public TT(string tell, string ask)
         {
-            this.Ask = ask;
+            this.Ask = ask.Trim().ToLower();
             BuildKB(tell);
             //PrintModel();
             Process();   
@@ -35,23 +33,30 @@ namespace Inference
          */
         public override void Process()
         {
-            ProcessSentence(0, "a&c=>p1");
-            if (Fetch(Ask))
-            {
-                int count = 0;
-               
-                for (int row = 0; row < Agenda.Count(); row++)
-                {
-                    if (Model[row, FindPosition(Ask)] && Model[row,AllSymbolAndStatment.Count])
-                    // find if the KB is TRUE and the ask is TRUE in the same model
-                        count += 1;
-                }
+            int count = 0;
 
-                if (count > 0)
-                    Console.WriteLine("YES: ", count);
-                else
-                    Console.WriteLine("NO");
+            for (int row = 0; row < (int) Math.Pow(2, Agenda.Count); row++)
+            {
+                //Identify rows where ASK is true;
+                if (Model[row, Agenda.IndexOf(Ask.ToLower())])
+                {
+                    bool valid = true;
+                    foreach (String sentence in Clauses)
+                    {
+                        if (!ProcessSentence(row, sentence))
+                        {
+                            //A sentence is FALSE, thus KB is FALSE
+                            valid = false;
+                            break;
+                        }
+                    }
+                    // find if the KB is TRUE and the ask is TRUE in the same model
+                    if (valid) count++;
+                }
             }
+
+            if (count > 0)
+                Console.WriteLine("YES: " + count);
             else
                 Console.WriteLine("NO");
         }
@@ -60,34 +65,6 @@ namespace Inference
         {
             //DETERMING THE KB FROM THE SECENTESE (ProcessSentence(row, sentence)
                 //USE EACH OF THE CLAUSES
-
-
-
-            /*if (Agenda.Count > 0) { 
-                // add the True and False into the whole TT map
-                int rows = (int)Math.Pow(2, AllSymbolAndStatment.Count);
-                for (int i = Agenda.Count; i < AllSymbolAndStatment.Count; i++)
-                // this step is to add the T/F into the position for statement 
-                {
-                    for (int j = 0; j < (Math.Pow(2, AllSymbolAndStatment.Count)); j++)
-                    // this step is pass the line number for fetch and find position
-                    {
-                        Model[j,i] = CheckStatement(AllSymbolAndStatment[i], j);
-                    }
-                }
-
-                // add the True or False for the KB result 
-                for (int j = 0; j < (Math.Pow(2, AllSymbolAndStatment.Count)); j++) 
-                // this step is pass the line number for fetch and find position
-                {
-                    Model[j,AllSymbolAndStatment.Count] = FindKB(j);
-                }
-
-                return true;
-            }
-
-            // Cannot be entailed
-            return false;*/
 
             return false;
         }
@@ -102,11 +79,11 @@ namespace Inference
                 if (sentences[i].Contains("=>"))
                 {
                     //If true, add to clause and count the conjuctions (A&B or Z)
-                    Clauses.Add(sentences[i]);
+                    Clauses.Add(sentences[i].ToLower());
                     Count.Add(sentences[i].Split('&').Length); 
                 }
                 else if(!sentences[i].Trim().Equals(""))  //If false and not empty, add to agenda
-                    Agenda.Add(sentences[i]);
+                    Agenda.Add(sentences[i].ToLower());
             }
 
             //add every symbol into the agenda including the deuplicated
@@ -160,7 +137,7 @@ namespace Inference
 
         //DISABLE
         public bool Fetch(string symbol) {
-
+            if(Agenda.Contains(symbol.Trim().ToLower()))
             for (int i = 0; i < AllSymbolAndStatment.Count; i++) {
                 if (AllSymbolAndStatment[i] == symbol)
                     return true;
@@ -200,19 +177,6 @@ namespace Inference
                 }
             }            
         }
-
-        // check if all the stetement are true, if it is then return true
-        /*public bool FindKB(int thelinenumber)
-        {
-            int TheSumOfStatement = 0;
-            for (int i = Agenda.Count; i < AllSymbolAndStatment.Count; i++)
-            {
-                if (Model[thelinenumber,i] == true)
-                    // if all the statement are true, the Sum of Statement should be the same as the number of the statement
-                    TheSumOfStatement += 1; 
-            }
-            return (TheSumOfStatement == (AllSymbolAndStatment.Count - Agenda.Count));
-        }*/
 
         public bool ProcessSentence(int row, string sentence)
         {
