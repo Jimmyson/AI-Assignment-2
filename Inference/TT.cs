@@ -17,9 +17,9 @@ namespace Inference
         //AGENDA contains all unique Variables (a, b, p1, etc.)
 
         private string Ask;
-        private bool[,] theModels;
+        private bool[,] Model;
         private List<String> AllSymbolAndStatment = new List<string>();
-        private List<String> UniqueStatements = new List<string>();
+        //private List<String> UniqueStatements = new List<string>();
         //private int TheNumberOfSymbol;
 
         public TT(string tell, string ask)
@@ -29,15 +29,18 @@ namespace Inference
             Process();   
         }
 
+        /**
+         * Count and print number of instances where scentence is true.
+         */
         public override void Process()
         {
             if (Fetch(Ask))
             {
                 int count = 0;
                
-                for (int i = 0; i < (Math.Pow(2, AllSymbolAndStatment.Count)); i++)
+                for (int row = 0; row < Agenda.Count(); row++)
                 {
-                    if (theModels[i,FindPosition(Ask)] && theModels[i,AllSymbolAndStatment.Count])
+                    if (Model[row, FindPosition(Ask)] && Model[row,AllSymbolAndStatment.Count])
                     // find if the KB is TRUE and the ask is TRUE in the same model
                         count += 1;
                 }
@@ -53,7 +56,12 @@ namespace Inference
 
         public override bool Algorithm()
         {
-            if (Agenda.Count > 0) { 
+            //DETERMING THE KB FROM THE SECENTESE (ProcessSentence(row, sentence)
+                //USE EACH OF THE CLAUSES
+
+
+
+            /*if (Agenda.Count > 0) { 
                 // add the True and False into the whole TT map
                 int rows = (int)Math.Pow(2, AllSymbolAndStatment.Count);
                 for (int i = Agenda.Count; i < AllSymbolAndStatment.Count; i++)
@@ -62,17 +70,7 @@ namespace Inference
                     for (int j = 0; j < (Math.Pow(2, AllSymbolAndStatment.Count)); j++)
                     // this step is pass the line number for fetch and find position
                     {
-                        theModels[j,i] = CheckStatement(AllSymbolAndStatment[i], j);
-                        /*
-                        if (CheckStatement(AllSymbolAndStatment[i], j)) {
-                            //TRUE
-                            theModels[j][i] = 1;
-                        }
-                        else
-                        {
-                            //FALSE
-                            theModels[j][i] = 0;
-                        }*/
+                        Model[j,i] = CheckStatement(AllSymbolAndStatment[i], j);
                     }
                 }
 
@@ -80,23 +78,15 @@ namespace Inference
                 for (int j = 0; j < (Math.Pow(2, AllSymbolAndStatment.Count)); j++) 
                 // this step is pass the line number for fetch and find position
                 {
-                    theModels[j,AllSymbolAndStatment.Count] = FindKB(j);
-                    /*if (FindKB(j))
-                    {
-                        //TRUE
-                        theModels[j][AllSymbolAndStatment.Count] = 1;
-                    }
-                    else
-                    {
-                        //FALSE
-                        theModels[j][AllSymbolAndStatment.Count] = 0;
-                    }*/
+                    Model[j,AllSymbolAndStatment.Count] = FindKB(j);
                 }
 
                 return true;
             }
 
             // Cannot be entailed
+            return false;*/
+
             return false;
         }
 
@@ -131,7 +121,6 @@ namespace Inference
             }
 
             BuildTheModels();
-            BuildWholeTT(Clauses);
         }
 
         public override bool Contains(string clause, string p)
@@ -142,19 +131,10 @@ namespace Inference
             // Get the conjucts by spliting premise
             List<string> conjucts = premise.Split('&').ToList();
 
-            return (conjucts.Count == 1) ? premise.Equals(p) : conjucts.Contains(p);
-
             // Check the conjunctions in the clause.
-            /*if (conjucts.Count == 1)
-            {
-                // If only 1, check the conjuct against p
-                return premise.Equals(p);
-            }
-            else
-            {
-                // If multiple, check each of them against p
-                return conjucts.Contains(p);
-            }*/
+            // If only 1, check the conjuct against p
+            // Else, check each of them against p
+            return (conjucts.Count == 1) ? premise.Equals(p) : conjucts.Contains(p);
         }
 
         // key section to add the result of statement
@@ -166,21 +146,17 @@ namespace Inference
 
             if (!statement.Contains("&"))
                 return (FindPosition(premise) == 0 && FindPosition(aftermise) == 1) ? false : true;
-                /*if (FindPosition(premise) == 0 && FindPosition(aftermise) == 1) { return false; }
-                else { return true; }*/
             else {
-                //string premise = Regex.Split(statement, "=>")[0];
-                //string aftermise = Regex.Split(statement, "=>")[1];
                 string[] temp = premise.Split('&');
                 
                 if (FindPosition(temp[0]) == 0 && FindPosition(temp[1]) == 1)
                     return (FindPosition(aftermise) == 1) ? false : true;
-                    //if (FindPosition(aftermise) == 1) { return false; } else { return true; }
                 else
                     return true;
             }
         }
 
+        //DISABLE
         public bool Fetch(string symbol) {
 
             for (int i = 0; i < AllSymbolAndStatment.Count; i++) {
@@ -191,6 +167,7 @@ namespace Inference
             return false;
         }
 
+        //DISABLE
         public int FindPosition(string symbol) {
             if (Fetch(symbol))
             {
@@ -206,79 +183,43 @@ namespace Inference
 
         public void BuildTheModels()
         {
-            // clear the deuplicated agenda
-            /*for (int i = 0; i < agenda.Count; i++)
-            {
-                if (AllSymbolAndStatment.Contains(agenda[i]))
-                    break;
-                else
-                    AllSymbolAndStatment.Add(agenda[i]);
-            }*/
-
-            //TheNumberOfSymbol = AllSymbolAndStatment.Count;
-            
             //Determine rows from variation in ALL unique variables.
             int rows = (int)Math.Pow(2, Agenda.Count);
 
             //Build the array.
-            this.theModels = new bool[rows, Agenda.Count + UniqueStatements.Count];
+            this.Model = new bool[rows, Agenda.Count];
 
-            for (int i = 0; i < Agenda.Count; i++)
+            for (int row = 0; row < rows; row++)
             {
-                for (int j = 0; j < rows; j++)
+                for (int agd = 2; agd >= 0; agd--)
                 {
-                    theModels[j,i] = (j < rows) ? false : true;
-                    /*if (j < Math.Pow(2, AllSymbolAndStatment.Count - 1))
-                    {
-                        //FALSE
-                        theModels[j][i] = 0;
-                    }
-                    else
-                    {
-                        //TRUE
-                        theModels[j][i] = 1;
-                    }*/
+                    int mask = (int)Math.Pow(2, agd);
+                    Model[row,agd] = (row & mask) == mask;
                 }
-            }
-            
-        }
-
-        public void BuildWholeTT(List<string> clauses) {
-            //@TODO: Seperate the Clauses. =>,&
-            // add all the statement into the symbol
-
-            //UniqueStatements;
-            for (int i = 0; i < Clauses.Count; i++)
-            {
-                if (AllSymbolAndStatment.Contains(Clauses[i]))
-                    break;
-                else
-                    AllSymbolAndStatment.Add(Clauses[i]);
-            }
-
-            if (Algorithm())
-                Console.WriteLine("The whole TT map is build");
+            }            
         }
 
         // check if all the stetement are true, if it is then return true
-        public bool FindKB(int thelinenumber)
+        /*public bool FindKB(int thelinenumber)
         {
             int TheSumOfStatement = 0;
             for (int i = Agenda.Count; i < AllSymbolAndStatment.Count; i++)
             {
-                if (theModels[thelinenumber,i] == true)
-                    TheSumOfStatement += 1; // if all the statement are true, the Sum of Statement should be the same as the number of the statement
+                if (Model[thelinenumber,i] == true)
+                    // if all the statement are true, the Sum of Statement should be the same as the number of the statement
+                    TheSumOfStatement += 1; 
             }
             return (TheSumOfStatement == (AllSymbolAndStatment.Count - Agenda.Count));
-            /*if (TheSumOfStatement == (AllSymbolAndStatment.Count - TheNumberOfSymbol))
-            { return true; }
-            else { return false; }*/
-
-        }
+        }*/
 
         public bool ProcessSentence(int row, string sentence)
         {
+            //@TODO: Seperate the Clauses. =>, &
+            //Reads left to Right, thus seperate from right to left.
+
             string[] segments;
+
+            //FIX IF LOGIC. LOOK FOR END LOGIC SYMBOL
             if (sentence.Contains("=>"))
             {
                 segments = Regex.Split(sentence, "=>");
@@ -300,7 +241,7 @@ namespace Inference
                 return And(logic[0], logic[1]);
             }
             else
-                return theModels[row, Agenda.IndexOf(sentence)];
+                return Model[row, Agenda.IndexOf(sentence)];
         }
 
         public bool Inference(bool p, bool q)
