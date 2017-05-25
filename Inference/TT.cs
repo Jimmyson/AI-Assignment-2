@@ -19,7 +19,8 @@ namespace Inference
         private string Ask;
         private bool[,] Model;
         private List<String> AllSymbolAndStatment = new List<string>();
-
+        private List<String> AllSymbolBeenIndicated = new List<string>();  // this used to store the aymbol that been indicated by others,
+                                                                           // as a example "a&b =>c", c will be stored inside, so it helps check and search
         public TT(string tell, string ask)
         {
             this.Ask = ask.Trim().ToLower();
@@ -34,31 +35,99 @@ namespace Inference
         public override void Process()
         {
             int count = 0;
+            if (CheckReferences(Ask))
+            {   //check if Ask exist and been controlled by the condition
 
-            for (int row = 0; row < (int) Math.Pow(2, Agenda.Count); row++)
-            {
-                //Identify rows where ASK is true;
-                if (Model[row, Agenda.IndexOf(Ask.ToLower())])
+                string statement = ReturnReferences(Ask);
+                Console.WriteLine(Model[2001, FindPosition(Ask)]);
+                Console.WriteLine(FindPosition(Ask));
+
+                for (int row = 0; row < (int)Math.Pow(2, Agenda.Count); row++)
                 {
-                    bool valid = true;
-                    foreach (String sentence in Clauses)
-                    {
-                        if (!ProcessSentence(row, sentence))
+                    if (SearchUntilEnd(row, statement) && Model[row, FindPosition(Ask)]) {
+
+                        if (Model[row, Agenda.IndexOf(Ask.ToLower())])
                         {
-                            //A sentence is FALSE, thus KB is FALSE
-                            valid = false;
-                            break;
+                            bool valid = true;
+                            foreach (String sentence in Clauses)
+                            {
+                                if (!ProcessSentence(row, sentence))
+                                {
+                                    //A sentence is FALSE, thus KB is FALSE
+                                    valid = false;
+                                    break;
+                                }
+                            }
+                            // find if the KB is TRUE and the ask is TRUE in the same model
+
+                            if (valid)
+                            {
+                                count++;
+                            }
                         }
                     }
-                    // find if the KB is TRUE and the ask is TRUE in the same model
-                    if (valid) count++;
+                    /*
+                    if (SearchUntilEnd(row, statement) && Model[row, FindPosition(Ask)])
+                    {
+
+                        count += 1;
+                    }*/
+
+                        //Identify rows where ASK is true;
+                       
                 }
             }
 
+            // see if KB out of ask
+            
+            for (int row = 0; row < (int)Math.Pow(2, Agenda.Count); row++)
+            {
+                
+
+                    if (Model[row, Agenda.IndexOf(Ask.ToLower())])
+                    {
+                        bool checkKB = false;
+                        foreach (String sentence in Clauses)
+                        {
+                            if (!ProcessSentence(row, sentence))
+                            {
+                            //A sentence is FALSE, thus KB is FALSE
+                            checkKB = false;
+                            break;
+                            }
+                        checkKB = true;
+
+
+                        }
+                    // if KB is out of the ask, then it can not entail it
+
+                    if (Model[row, FindPosition(Ask)] == false && checkKB == true)
+                    {
+                        count = 0;
+
+                    };
+                }
+                
+
+            }
+
+
+
             if (count > 0)
+            {
                 Console.WriteLine("YES: " + count);
+                foreach (String sentence in Agenda)
+                { Console.WriteLine(sentence); }
+            }
             else
-                Console.WriteLine("NO");
+            {
+                Console.WriteLine("NO" );
+             //   foreach (String sentence in AllSymbolBeenIndicated)
+             //   { Console.WriteLine(sentence); }
+
+                foreach (String sentence in Agenda)
+                { Console.WriteLine(sentence); }
+            }
         }
 
         public override bool Algorithm()
@@ -84,12 +153,16 @@ namespace Inference
                 }
                 else if(!sentences[i].Trim().Equals(""))  //If false and not empty, add to agenda
                     Agenda.Add(sentences[i].ToLower());
-            }
+             }
 
             //add every symbol into the agenda including the deuplicated
             //the deuplication will be remove in the next step
+            
             for (int i = 0; i < Clauses.Count; i++) {
                 string statement = Clauses[i];
+                string aftermise = Regex.Split(statement, "=>")[1];
+                AllSymbolBeenIndicated.Add(aftermise);
+
                 statement = statement.Replace("=>", " ").Replace("&", " ");
                 string[] temp = statement.Split(' ');
                 for (int j = 0; j < temp.Length; j++)
@@ -98,6 +171,9 @@ namespace Inference
                         Agenda.Add(temp[j]);
                 }
             }
+
+     
+            
 
             BuildTheModels();
         }
@@ -122,7 +198,7 @@ namespace Inference
             // currently can handle a&b=>c ; a=>c;
             string premise = Regex.Split(statement, "=>")[0];
             string aftermise = Regex.Split(statement, "=>")[1];
-
+            AllSymbolBeenIndicated.Add(aftermise);
             if (!statement.Contains("&"))
                 return (FindPosition(premise) == 0 && FindPosition(aftermise) == 1) ? false : true;
             else {
@@ -135,24 +211,24 @@ namespace Inference
             }
         }
 
-        //DISABLE
+
         public bool Fetch(string symbol) {
             if(Agenda.Contains(symbol.Trim().ToLower()))
-            for (int i = 0; i < AllSymbolAndStatment.Count; i++) {
-                if (AllSymbolAndStatment[i] == symbol)
+            for (int i = 0; i < agenda.Count; i++) {
+                if (agenda[i] == symbol)
                     return true;
             }
 
             return false;
         }
 
-        //DISABLE
+
         public int FindPosition(string symbol) {
             if (Fetch(symbol))
             {
-                for (int i = 0; i < AllSymbolAndStatment.Count; i++)
+                for (int i = 0; i < agenda.Count; i++)
                 {
-                    if (AllSymbolAndStatment[i] == symbol)
+                    if (agenda[i] == symbol)
                         return i;
                 }
             }
@@ -222,6 +298,11 @@ namespace Inference
             return (!p || q);
         }
 
+        public bool OR(bool p, bool q)
+        {
+            return (p || q);
+        }
+
         public bool And(bool p, bool q)
         {
             return (p && q);
@@ -252,5 +333,125 @@ namespace Inference
                 Console.WriteLine();
             }
         }
+
+
+        // new features 
+        //1.CheckReferences
+        //2.ReturnReferences
+        //3.SearchUntilEnd    <- this one is the core method to search if all the relationship fits the needs
+
+        public bool CheckReferences(string statement)
+        {
+            if (AllSymbolBeenIndicated.Contains(statement)) {
+
+            return true;
+            }
+            return false;
+        }
+
+        public string ReturnReferences(string statement)
+        {
+            if (AllSymbolBeenIndicated.Contains(statement))
+            {
+                for (int i = 0; i < Clauses.Count; i++)
+                {
+                    string statementlocal = Clauses[i];
+                    string premise = Regex.Split(statementlocal, "=>")[0];
+                    string aftermise = Regex.Split(statementlocal, "=>")[1];
+                    if (statement == aftermise) {
+                        return statementlocal;
+                    }
+                    
+                }
+            }
+            return null;
+        }
+
+        // currecntly can handle "a&b => c" and "a||b => c"
+        public bool SearchUntilEnd(int row, string statement) {
+            
+            string premise = Regex.Split(statement, "=>")[0];
+            string aftermise = Regex.Split(statement, "=>")[1];
+            int pos;
+            if ((pos = premise.LastIndexOf("&")) > 0)
+            {
+                string first = Regex.Split(statement, "&")[0];
+                string second = Regex.Split(statement, "&")[1];
+
+                bool result1;
+                bool result2;
+
+                if (And(Model[row, FindPosition(first)], Model[row, FindPosition(second)]) && ProcessSentence(row,statement))
+                {
+                    if (ReturnReferences(first) != null)
+                    {
+                        string newstatement = ReturnReferences(first);
+                        result1 = SearchUntilEnd(row, newstatement);
+                    }
+                    else { result1 = true; }
+                    if (ReturnReferences(second) != null)
+                    {
+                        string newstatement = ReturnReferences(second);
+                        result2 = SearchUntilEnd(row, newstatement);
+                    }
+                    else { result2 = true; }
+
+
+                    if (result1 && result2) { return true; }
+                    else { return false; }
+                }
+                else { return false; }
+
+
+            }
+            else if ((pos = premise.LastIndexOf("||")) > 0)
+            {
+                string first = Regex.Split(statement, "||")[0];
+                string second = Regex.Split(statement, "||")[1];
+
+                bool result1;
+                bool result2;
+
+                if (OR(Model[row, FindPosition(first)], Model[row, FindPosition(second)]) && ProcessSentence(row, statement))
+                {
+                    if (ReturnReferences(first) != null)
+                    {
+                        string newstatement = ReturnReferences(first);
+                        result1 = SearchUntilEnd(row, newstatement);
+                    }
+                    else { result1 = true; }
+                    if (ReturnReferences(second) != null)
+                    {
+                        string newstatement = ReturnReferences(second);
+                        result2 = SearchUntilEnd(row, newstatement);
+                    }
+                    else { result2 = true; }
+
+                    if (result1 && result2) { return true; }
+                    else { return false; }
+                }
+                else { return false; }
+            }
+            else
+            {
+                bool result = false; ;
+                if (Model[row, FindPosition(premise)]==true && ProcessSentence(row, statement)==true)
+                {
+                    if (ReturnReferences(premise) != null)
+                    {
+                        string newstatement = ReturnReferences(premise);
+                        result = SearchUntilEnd(row, newstatement);
+                    }
+                    else { result = true; }
+                    
+
+                }
+                else { result = false; }
+                return result;
+
+            }
+
+        }
+
     }
 }
