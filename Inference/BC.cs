@@ -113,11 +113,13 @@ namespace Inference
 
             if (Algorithm())
             {
-                output += "YES: ";
+                //output += "YES: ";
+                Entailed.Reverse();
                 foreach (String Entail in Entailed)
                 {
                     output += (Entailed.Count < 2) ? Entail : Entail + ", ";
                 }
+                output = "YES: " + output;
             }
             else
             {
