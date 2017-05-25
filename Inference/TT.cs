@@ -21,6 +21,7 @@ namespace Inference
         private List<String> AllSymbolAndStatment = new List<string>();
         private List<String> AllSymbolBeenIndicated = new List<string>();  // this used to store the aymbol that been indicated by others,
                                                                            // as a example "a&b =>c", c will be stored inside, so it helps check and search
+        private List<String> SingleStatement = new List<string>();         
         public TT(string tell, string ask)
         {
             this.Ask = ask.Trim().ToLower();
@@ -60,8 +61,28 @@ namespace Inference
                             }
                             // find if the KB is TRUE and the ask is TRUE in the same model
 
-                            if (valid)
+                            bool valid2 = true;
+                            foreach (String sentence in AllSymbolBeenIndicated)
                             {
+                                if (Model[row, FindPosition(sentence)] == false) {
+                                    valid2 = false;
+                                    break;
+
+                                }
+                            }
+                            foreach (String sentence in SingleStatement)
+                            {
+                                if (Model[row, FindPosition(sentence)] == false)
+                                {
+                                    valid2 = false;
+                                    break;
+
+                                }
+                            }
+
+                            if (valid && valid2)
+                            {
+                               
                                 count++;
                             }
                         }
@@ -116,7 +137,7 @@ namespace Inference
             if (count > 0)
             {
                 Console.WriteLine("YES: " + count);
-                foreach (String sentence in Agenda)
+                foreach (String sentence in AllSymbolBeenIndicated)
                 { Console.WriteLine(sentence); }
             }
             else
@@ -125,8 +146,7 @@ namespace Inference
              //   foreach (String sentence in AllSymbolBeenIndicated)
              //   { Console.WriteLine(sentence); }
 
-                foreach (String sentence in Agenda)
-                { Console.WriteLine(sentence); }
+                
             }
         }
 
@@ -162,7 +182,7 @@ namespace Inference
                 string statement = Clauses[i];
                 string aftermise = Regex.Split(statement, "=>")[1];
                 AllSymbolBeenIndicated.Add(aftermise);
-
+                Console.WriteLine(aftermise);
                 statement = statement.Replace("=>", " ").Replace("&", " ");
                 string[] temp = statement.Split(' ');
                 for (int j = 0; j < temp.Length; j++)
@@ -171,9 +191,20 @@ namespace Inference
                         Agenda.Add(temp[j]);
                 }
             }
+            foreach (String sentence in agenda)
+                   {
 
-     
-            
+                foreach (String sentence2 in Clauses)
+                {
+                    if (Contains(sentence2, sentence)) {
+                        SingleStatement.Add(sentence);
+                    }
+                }
+
+
+            }
+
+
 
             BuildTheModels();
         }
