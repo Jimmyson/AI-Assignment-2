@@ -434,7 +434,7 @@ namespace Inference
             }
             else
             {
-                bool result = false; ;
+                bool result = false; 
                 if (Model[row, FindPosition(premise)]==true && ProcessSentence(row, statement)==true)
                 {
                     if (ReturnReferences(premise) != null)
