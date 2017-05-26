@@ -62,14 +62,7 @@ namespace Inference
                             // find if the KB is TRUE and the ask is TRUE in the same model
 
                             bool valid2 = true;
-                            foreach (String sentence in AllSymbolBeenIndicated)
-                            {
-                                if (Model[row, FindPosition(sentence)] == false) {
-                                    valid2 = false;
-                                    break;
-
-                                }
-                            }
+                            
                             foreach (String sentence in SingleStatement)
                             {
                                 if (Model[row, FindPosition(sentence)] == false)
@@ -172,8 +165,10 @@ namespace Inference
                     Count.Add(sentences[i].Split('&').Length); 
                 }
                 else if(!sentences[i].Trim().Equals(""))  //If false and not empty, add to agenda
-                    Agenda.Add(sentences[i].ToLower());
-             }
+                {    Agenda.Add(sentences[i].ToLower());
+                    SingleStatement.Add(sentences[i].ToLower());
+                }
+            }
 
             //add every symbol into the agenda including the deuplicated
             //the deuplication will be remove in the next step
@@ -188,21 +183,11 @@ namespace Inference
                 for (int j = 0; j < temp.Length; j++)
                 {
                     if (!Agenda.Contains(temp[j])) //Check for Duplicates
-                        Agenda.Add(temp[j]);
+                     Agenda.Add(temp[j]);
+                    
                 }
             }
-            foreach (String sentence in agenda)
-                   {
-
-                foreach (String sentence2 in Clauses)
-                {
-                    if (Contains(sentence2, sentence)) {
-                        SingleStatement.Add(sentence);
-                    }
-                }
-
-
-            }
+            
 
 
 
