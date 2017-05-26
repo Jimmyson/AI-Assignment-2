@@ -26,7 +26,6 @@ namespace Inference
         {
             this.Ask = ask.Trim().ToLower();
             BuildKB(tell);
-            //PrintModel();
             Process();   
         }
 
@@ -40,16 +39,16 @@ namespace Inference
             {   //check if Ask exist and been controlled by the condition
 
                 string statement = ReturnReferences(Ask);
-                Console.WriteLine(Model[2001, FindPosition(Ask)]);
-                Console.WriteLine(FindPosition(Ask));
+                //Console.WriteLine(Model[2001, FindPosition(Ask)]);
+                //Console.WriteLine(FindPosition(Ask));
 
                 for (int row = 0; row < (int)Math.Pow(2, Agenda.Count); row++)
                 {
-                    if (SearchUntilEnd(row, statement) && Model[row, FindPosition(Ask)]) {
-
+                    if (SearchUntilEnd(row, statement) && Model[row, FindPosition(Ask)])
+                    {
                         if (Model[row, Agenda.IndexOf(Ask.ToLower())])
                         {
-                            bool valid = true;
+                            bool valid = true, valid2 = true;
                             foreach (String sentence in Clauses)
                             {
                                 if (!ProcessSentence(row, sentence))
@@ -59,36 +58,21 @@ namespace Inference
                                     break;
                                 }
                             }
-                            // find if the KB is TRUE and the ask is TRUE in the same model
 
-                            bool valid2 = true;
-                            
+                            // find if the KB is TRUE and the ask is TRUE in the same model
                             foreach (String sentence in SingleStatement)
                             {
                                 if (Model[row, FindPosition(sentence)] == false)
                                 {
                                     valid2 = false;
                                     break;
-
                                 }
                             }
 
                             if (valid && valid2)
-                            {
-                               
                                 count++;
-                            }
                         }
                     }
-                    /*
-                    if (SearchUntilEnd(row, statement) && Model[row, FindPosition(Ask)])
-                    {
-
-                        count += 1;
-                    }*/
-
-                        //Identify rows where ASK is true;
-                       
                 }
             }
 
@@ -96,50 +80,36 @@ namespace Inference
             
             for (int row = 0; row < (int)Math.Pow(2, Agenda.Count); row++)
             {
-                
-
-                    if (Model[row, Agenda.IndexOf(Ask.ToLower())])
+                if (Model[row, Agenda.IndexOf(Ask.ToLower())])
+                {
+                    bool checkKB = false;
+                    foreach (String sentence in Clauses)
                     {
-                        bool checkKB = false;
-                        foreach (String sentence in Clauses)
+                        if (!ProcessSentence(row, sentence))
                         {
-                            if (!ProcessSentence(row, sentence))
-                            {
                             //A sentence is FALSE, thus KB is FALSE
                             checkKB = false;
                             break;
-                            }
-                        checkKB = true;
-
-
                         }
+
+                        checkKB = true;
+                    }
                     // if KB is out of the ask, then it can not entail it
 
-                    if (Model[row, FindPosition(Ask)] == false && checkKB == true)
-                    {
+                    if (!Model[row, FindPosition(Ask)] && checkKB)
                         count = 0;
-
-                    };
                 }
-                
-
             }
-
-
 
             if (count > 0)
             {
                 Console.WriteLine("YES: " + count);
-                foreach (String sentence in AllSymbolBeenIndicated)
-                { Console.WriteLine(sentence); }
+                //foreach (String sentence in AllSymbolBeenIndicated)
+                //{ Console.WriteLine(sentence); }
             }
             else
             {
                 Console.WriteLine("NO" );
-             //   foreach (String sentence in AllSymbolBeenIndicated)
-             //   { Console.WriteLine(sentence); }
-
-                
             }
         }
 
@@ -165,7 +135,8 @@ namespace Inference
                     Count.Add(sentences[i].Split('&').Length); 
                 }
                 else if(!sentences[i].Trim().Equals(""))  //If false and not empty, add to agenda
-                {    Agenda.Add(sentences[i].ToLower());
+                {
+                    Agenda.Add(sentences[i].ToLower());
                     SingleStatement.Add(sentences[i].ToLower());
                 }
             }
@@ -177,19 +148,15 @@ namespace Inference
                 string statement = Clauses[i];
                 string aftermise = Regex.Split(statement, "=>")[1];
                 AllSymbolBeenIndicated.Add(aftermise);
-                Console.WriteLine(aftermise);
+                //Console.WriteLine(aftermise);
                 statement = statement.Replace("=>", " ").Replace("&", " ");
                 string[] temp = statement.Split(' ');
                 for (int j = 0; j < temp.Length; j++)
                 {
                     if (!Agenda.Contains(temp[j])) //Check for Duplicates
                      Agenda.Add(temp[j]);
-                    
                 }
             }
-            
-
-
 
             BuildTheModels();
         }
@@ -314,7 +281,7 @@ namespace Inference
             return (!p || q);
         }
 
-        public bool OR(bool p, bool q)
+        public bool Or(bool p, bool q)
         {
             return (p || q);
         }
@@ -337,19 +304,13 @@ namespace Inference
                 for (int i = 0; i < Agenda.Count; i++)
                 {
                     if (Model[j,i])
-                    {
-
                         Console.Write("1 ");
-                    } else
-                    {
-
+                    else
                         Console.Write("0 ");
-                    }
                 }
                 Console.WriteLine();
             }
         }
-
 
         // new features 
         //1.CheckReferences
@@ -358,11 +319,7 @@ namespace Inference
 
         public bool CheckReferences(string statement)
         {
-            if (AllSymbolBeenIndicated.Contains(statement)) {
-
-            return true;
-            }
-            return false;
+            return (AllSymbolBeenIndicated.Contains(statement));
         }
 
         public string ReturnReferences(string statement)
@@ -377,7 +334,6 @@ namespace Inference
                     if (statement == aftermise) {
                         return statementlocal;
                     }
-                    
                 }
             }
             return null;
@@ -389,85 +345,65 @@ namespace Inference
             string premise = Regex.Split(statement, "=>")[0];
             string aftermise = Regex.Split(statement, "=>")[1];
             int pos;
+
+            bool result1, result2;
+
             if ((pos = premise.LastIndexOf("&")) > 0)
             {
                 string first = Regex.Split(statement, "&")[0];
                 string second = Regex.Split(statement, "&")[1];
 
-                bool result1;
-                bool result2;
-
                 if (And(Model[row, FindPosition(first)], Model[row, FindPosition(second)]) && ProcessSentence(row,statement))
                 {
                     if (ReturnReferences(first) != null)
-                    {
-                        string newstatement = ReturnReferences(first);
-                        result1 = SearchUntilEnd(row, newstatement);
-                    }
-                    else { result1 = true; }
+                        result1 = SearchUntilEnd(row, ReturnReferences(first));
+                    else result1 = true;
                     if (ReturnReferences(second) != null)
-                    {
-                        string newstatement = ReturnReferences(second);
-                        result2 = SearchUntilEnd(row, newstatement);
-                    }
-                    else { result2 = true; }
+                        result2 = SearchUntilEnd(row, ReturnReferences(second));
+                    else result2 = true;
 
-
-                    if (result1 && result2) { return true; }
-                    else { return false; }
+                    return (result1 && result2);
                 }
-                else { return false; }
-
-
+                else
+                    return false;
             }
             else if ((pos = premise.LastIndexOf("||")) > 0)
             {
                 string first = Regex.Split(statement, "||")[0];
                 string second = Regex.Split(statement, "||")[1];
 
-                bool result1;
-                bool result2;
-
-                if (OR(Model[row, FindPosition(first)], Model[row, FindPosition(second)]) && ProcessSentence(row, statement))
+                if (Or(Model[row, FindPosition(first)], Model[row, FindPosition(second)]) && ProcessSentence(row, statement))
                 {
                     if (ReturnReferences(first) != null)
-                    {
-                        string newstatement = ReturnReferences(first);
-                        result1 = SearchUntilEnd(row, newstatement);
-                    }
-                    else { result1 = true; }
-                    if (ReturnReferences(second) != null)
-                    {
-                        string newstatement = ReturnReferences(second);
-                        result2 = SearchUntilEnd(row, newstatement);
-                    }
-                    else { result2 = true; }
+                        result1 = SearchUntilEnd(row, ReturnReferences(first));
+                    else
+                        result1 = true;
 
-                    if (result1 && result2) { return true; }
-                    else { return false; }
+                    if (ReturnReferences(second) != null)
+                        result2 = SearchUntilEnd(row, ReturnReferences(second));
+                    else
+                        result2 = true;
+
+                    return (result1 && result2);
                 }
-                else { return false; }
+                else
+                    return false;
             }
             else
             {
                 bool result = false; 
-                if (Model[row, FindPosition(premise)]==true && ProcessSentence(row, statement)==true)
+                if (Model[row, FindPosition(premise)] && ProcessSentence(row, statement))
                 {
                     if (ReturnReferences(premise) != null)
-                    {
-                        string newstatement = ReturnReferences(premise);
-                        result = SearchUntilEnd(row, newstatement);
-                    }
-                    else { result = true; }
-                    
-
+                        result = SearchUntilEnd(row, ReturnReferences(premise));
+                    else
+                        result = true;
                 }
-                else { result = false; }
+                else
+                    result = false;
+
                 return result;
-
             }
-
         }
-
     }
 }
